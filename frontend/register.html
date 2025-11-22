@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل حساب جديد - نظام الفيديو المتقدم</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .auth-form-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+        }
+
+        .auth-box {
+            background: var(--secondary-bg);
+            border-radius: 12px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo {
+            width: 80px;
+            height: 80px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: var(--accent-color);
+        }
+
+        .auth-title {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .password-strength {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .strength-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .strength-bar {
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .strength-progress {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .terms-group {
+            margin: 1.5rem 0;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .checkbox-label input {
+            display: none;
+        }
+
+        .checkmark {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            position: relative;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-label input:checked + .checkmark {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .checkbox-label input:checked + .checkmark::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .terms-link {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .auth-link-text {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .auth-link-btn {
+            width: 100%;
+            background: rgba(59, 130, 246, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-container {
+            margin-top: 1.5rem;
+        }
+
+        .spinner {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body class="terminal-effect">
+    <div class="auth-form-container">
+        <div class="auth-box">
+            <!-- شعار النظام -->
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h1 class="auth-title">
+                    <span class="glitch-text" data-text="SYSTEM_REGISTER">SYSTEM_REGISTER</span>
+                </h1>
+                <p class="auth-subtitle">إنشاء حساب جديد في النظام المتقدم</p>
+            </div>
+            
+            <form id="registerForm">
+                <div class="form-group">
+                    <label class="form-label">الاسم الكامل</label>
+                    <input type="text" class="form-control" id="name" required 
+                           placeholder="أدخل اسمك الكامل">
+                    <div class="form-hint">يجب أن يكون الاسم مكون من 3 أحرف على الأقل</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">البريد الإلكتروني</label>
+                    <input type="email" class="form-control" id="email" required 
+                           placeholder="example@domain.com">
+                    <div class="form-hint">استخدم بريد إلكتروني صالح</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">كلمة المرور</label>
+                    <input type="password" class="form-control" id="password" required 
+                           minlength="6" placeholder="••••••">
+                    <div class="form-hint">6 أحرف على الأقل</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">تأكيد كلمة المرور</label>
+                    <input type="password" class="form-control" id="confirmPassword" required 
+                           minlength="6" placeholder="••••••">
+                    <div class="form-hint">تأكيد كلمة المرور</div>
+                </div>
+
+                <!-- مؤشر قوة كلمة المرور -->
+                <div id="passwordStrength" class="password-strength" style="display: none;">
+                    <div class="strength-header">
+                        <span>قوة كلمة المرور:</span>
+                        <span id="passwordStrengthText"></span>
+                    </div>
+                    <div class="strength-bar">
+                        <div id="passwordStrengthBar" class="strength-progress"></div>
+                    </div>
+                </div>
+
+                <!-- شروط الاستخدام -->
+                <div class="form-group terms-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="agreeTerms" required>
+                        <span class="checkmark"></span>
+                        <span class="terms-text">
+                            أوافق على <a href="#" class="terms-link">شروط الخدمة</a> 
+                            و <a href="#" class="terms-link">سياسة الخصوصية</a>
+                        </span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">
+                    <span id="registerText">
+                        <i class="fas fa-rocket"></i>
+                        إنشاء الحساب
+                    </span>
+                    <span id="registerSpinner" class="spinner" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        جاري إنشاء الحساب...
+                    </span>
+                </button>
+            </form>
+
+            <!-- روابط إضافية -->
+            <div class="auth-footer">
+                <p class="auth-link-text">
+                    لديك حساب بالفعل؟
+                </p>
+                <a href="/login.html" class="btn auth-link-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    تسجيل الدخول إلى النظام
+                </a>
+                
+                <div class="back-home">
+                    <a href="/" class="back-link">
+                        <i class="fas fa-home"></i>
+                        العودة للرئيسية
+                    </a>
+                </div>
+            </div>
+
+            <div id="alertContainer" class="alert-container"></div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // التحقق من قوة كلمة المرور
+        document.getElementById('password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            const strengthText = document.getElementById('passwordStrengthText');
+            const strengthContainer = document.getElementById('passwordStrength');
+            
+            if (password.length === 0) {
+                strengthContainer.style.display = 'none';
+                return;
+            }
+            
+            strengthContainer.style.display = 'block';
+            
+            let strength = 0;
+            let text = '';
+            let color = '';
+            
+            // قواعد قوة كلمة المرور
+            if (password.length >= 6) strength += 25;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength += 25;
+            if (password.match(/\d/)) strength += 25;
+            if (password.match(/[^a-zA-Z\d]/)) strength += 25;
+            
+            if (strength < 50) {
+                text = 'ضعيفة';
+                color = '#ef4444';
+            } else if (strength < 75) {
+                text = 'متوسطة';
+                color = '#f59e0b';
+            } else {
+                text = 'قوية';
+                color = '#10b981';
+            }
+            
+            strengthBar.style.width = strength + '%';
+            strengthBar.style.background = color;
+            strengthText.textContent = text;
+            strengthText.style.color = color;
+        });
+
+        // التحقق من تطابق كلمات المرور
+        document.getElementById('confirmPassword').addEventListener('input', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = e.target.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                e.target.style.borderColor = '#ef4444';
+                e.target.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.1)';
+            } else {
+                e.target.style.borderColor = '';
+                e.target.style.boxShadow = '';
+            }
+        });
+
+        // منع المستخدمين المسجلين من الوصول لصفحة التسجيل
+        document.addEventListener('DOMContentLoaded', function() {
+            authManager.requireGuest();
+        });
+    </script>
+</body>
+</html>

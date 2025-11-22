@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الفيديوهات - نظام الفيديو</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="terminal-effect">
+    <div class="admin-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>
+                    <i class="fas fa-video"></i>
+                    <span>مركز التحكم</span>
+                </h2>
+                <div class="user-info" id="userInfo">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-details">
+                        <div class="user-name">جاري التحميل...</div>
+                        <div class="user-role">ADMIN</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+                    <span class="nav-text">لوحة التحكم</span>
+                </a>
+                <a href="videos.html" class="nav-item active">
+                    <span class="nav-icon"><i class="fas fa-play-circle"></i></span>
+                    <span class="nav-text">إدارة الفيديوهات</span>
+                </a>
+                <a href="users.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-users"></i></span>
+                    <span class="nav-text">إدارة المستخدمين</span>
+                </a>
+                <a href="logs.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-clipboard-list"></i></span>
+                    <span class="nav-text">سجلات النظام</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-danger" style="width: 100%;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="content-header">
+                <h1>إدارة الفيديوهات</h1>
+                <div class="header-actions">
+                    <button class="btn" onclick="showAddVideoModal()">
+                        <i class="fas fa-plus"></i>
+                        إضافة فيديو
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="card">
+                    <div class="table-header">
+                        <h3>قائمة الفيديوهات</h3>
+                        <div class="search-box">
+                            <input type="text" id="searchVideos" placeholder="بحث في الفيديوهات..." class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>الفيديو</th>
+                                    <th>الحالة</th>
+                                    <th>الخصوصية</th>
+                                    <th>المشاهدات</th>
+                                    <th>تاريخ الإضافة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="videosTableBody">
+                                <!-- سيتم تعبئته ديناميكياً -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-footer">
+                        <div class="pagination" id="videosPagination">
+                            <!-- سيتم تعبئته ديناميكياً -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal إضافة فيديو -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="videoModalTitle">إضافة فيديو جديد</h3>
+                <button class="close-modal" onclick="closeVideoModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="videoForm">
+                    <div class="form-group">
+                        <label class="form-label">رابط اليوتيوب</label>
+                        <input type="url" class="form-control" id="videoUrl" 
+                               placeholder="https://www.youtube.com/watch?v=..." required>
+                        <div class="form-hint">يدعم روابط youtube.com و youtu.be</div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">الخصوصية</label>
+                            <select class="form-control" id="videoPrivacy">
+                                <option value="public">عام</option>
+                                <option value="unlisted">غير مدرج</option>
+                                <option value="private">خاص</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">الأدوار المسموحة</label>
+                            <select class="form-control" id="videoRoles" multiple style="height: 100px;">
+                                <option value="user">مستخدم عادي</option>
+                                <option value="vip">VIP</option>
+                                <option value="premium">Premium</option>
+                            </select>
+                            <div class="form-hint">اضغط Ctrl لاختيار أكثر من دور</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">المستخدمون المسموحون</label>
+                        <input type="text" class="form-control" id="videoUsers" 
+                               placeholder="أدخل أسماء المستخدمين (افصل بفاصلة)">
+                        <div class="form-hint">للفيديوهات الخاصة فقط</div>
+                    </div>
+
+                    <div id="videoPreview" style="display: none;">
+                        <div class="video-preview-card">
+                            <img id="previewThumbnail" src="" alt="Preview" style="width: 100%; border-radius: 4px;">
+                            <div id="previewTitle" style="margin-top: 1rem; font-weight: bold;"></div>
+                            <div id="previewDescription" style="color: var(--text-secondary); margin-top: 0.5rem;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="fetchVideoInfo()">سحب بيانات اليوتيوب</button>
+                <button type="button" class="btn" id="saveVideoBtn" onclick="saveVideo()">حفظ الفيديو</button>
+                <button type="button" class="btn" id="updateVideoBtn" onclick="updateVideo()" style="display: none;">تحديث الفيديو</button>
+                <button type="button" class="btn btn-danger" onclick="closeVideoModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/admin-videos.js"></script>
+</body>
+</html>

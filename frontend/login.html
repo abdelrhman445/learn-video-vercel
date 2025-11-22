@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - نظام الفيديو</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="terminal-effect">
+    <div class="login-container">
+        <div class="login-box">
+            <h1 class="login-title">
+                <span class="glitch-text" data-text="SYSTEM_LOGIN">SYSTEM_LOGIN</span>
+            </h1>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">البريد الإلكتروني</label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">كلمة المرور</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">
+                    <span id="loginText">الدخول للنظام</span>
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="/" style="color: var(--text-secondary); text-decoration: none;">
+                    <i class="fas fa-home"></i> العودة للرئيسية
+                </a>
+            </div>
+
+            <div id="alertContainer" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // منع المستخدمين المسجلين من الوصول لصفحة تسجيل الدخول
+        document.addEventListener('DOMContentLoaded', function() {
+            authManager.requireGuest();
+        });
+    </script>
+</body>
+</html>

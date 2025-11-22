@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "name": "hacker-video-platform",
+  "builds": [
+    { "src": "server.js", "use": "@vercel/node" },
+    { "src": "frontend/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/server.js" },
+    { "src": "/(.*)", "dest": "/frontend/$1" }
+  ]
+}

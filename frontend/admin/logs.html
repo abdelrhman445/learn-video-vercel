@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجلات النظام - نظام الفيديو</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="terminal-effect">
+    <div class="admin-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>
+                    <i class="fas fa-video"></i>
+                    <span>مركز التحكم</span>
+                </h2>
+                <div class="user-info" id="userInfo">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-details">
+                        <div class="user-name">جاري التحميل...</div>
+                        <div class="user-role">ADMIN</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+                    <span class="nav-text">لوحة التحكم</span>
+                </a>
+                <a href="videos.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-play-circle"></i></span>
+                    <span class="nav-text">إدارة الفيديوهات</span>
+                </a>
+                <a href="users.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-users"></i></span>
+                    <span class="nav-text">إدارة المستخدمين</span>
+                </a>
+                <a href="logs.html" class="nav-item active">
+                    <span class="nav-icon"><i class="fas fa-clipboard-list"></i></span>
+                    <span class="nav-text">سجلات النظام</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-danger" style="width: 100%;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="content-header">
+                <h1>سجلات النظام</h1>
+                <div class="header-actions">
+                    <button class="btn" onclick="logsManager.refreshLogs()">
+                        <i class="fas fa-sync-alt"></i>
+                        تحديث
+                    </button>
+                    <button class="btn btn-danger" onclick="logsManager.clearLogs()">
+                        <i class="fas fa-trash"></i>
+                        مسح السجلات
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="card">
+                    <div class="table-header">
+                        <h3>سجل النشاطات</h3>
+                        <div class="filter-controls">
+                            <select id="logFilter" class="form-control" onchange="logsManager.filterLogs()">
+                                <option value="">جميع النشاطات</option>
+                                <option value="LOGIN">تسجيل الدخول</option>
+                                <option value="REGISTER">تسجيل مستخدم</option>
+                                <option value="ADD_VIDEO">إضافة فيديو</option>
+                                <option value="UPDATE_VIDEO">تحديث فيديو</option>
+                                <option value="DELETE_VIDEO">حذف فيديو</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="terminal" id="logsTerminal">
+                        <div class="terminal-line">
+                            <span class="terminal-prompt">></span> جاري تحميل سجلات النظام...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script>
+        class LogsManager {
+            constructor() {
+                this.logs = [];
+                this.filter = '';
+                this.init();
+            }
+
+            async init() {
+                await this.loadLogs();
+            }
+
+            async loadLogs() {
+                try {
+                    const token = localStorage.getItem('authToken');
+                    const url = this.filter ? `/api/admin/logs?action=${this.filter}` : '/api/admin/logs';
+                    
+                    const response = await fetch(url, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.logs = data.data.logs;
+                        this.renderLogs();
+                    } else {
+                        this.showError('فشل في تحميل السجلات: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error loading logs:', error);
+                    this.showError('خطأ في تحميل السجلات');
+                }
+            }
+
+            renderLogs() {
+                const terminal = document.getElementById('logsTerminal');
+                if (!terminal) return;
+
+                if (this.logs.length === 0) {
+                    terminal.innerHTML = `
+                        <div class="terminal-line">
+                            <span class="terminal-prompt">></span> لا توجد سجلات
+                        </div>
+                    `;
+                    return;
+                }
+
+                terminal.innerHTML = this.logs.map(log => `
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">[${new Date(log.createdAt).toLocaleString('ar-EG')}]</span>
+                        <span style="color: ${this.getActionColor(log.action)};">[${log.action}]</span>
+                        ${log.actor?.name || 'System'} - ${log.target}
+                        ${log.details ? `- ${JSON.stringify(log.details)}` : ''}
+                    </div>
+                `).join('');
+
+                // التمرير للأسفل
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+
+            getActionColor(action) {
+                const colors = {
+                    'LOGIN': '#10b981',
+                    'REGISTER': '#3b82f6',
+                    'ADD_VIDEO': '#00FF7F',
+                    'UPDATE_VIDEO': '#f59e0b',
+                    'DELETE_VIDEO': '#ef4444',
+                    'UPDATE_USER': '#8A2BE2'
+                };
+                return colors[action] || '#cccccc';
+            }
+
+            async refreshLogs() {
+                await this.loadLogs();
+            }
+
+            async clearLogs() {
+                if (!confirm('هل أنت متأكد من مسح جميع السجلات؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                    return;
+                }
+
+                try {
+                    // في الواقع، هذا سيحذف السجلات من قاعدة البيانات
+                    // لكننا سنقوم فقط بمسح العرض مؤقتاً
+                    this.logs = [];
+                    this.renderLogs();
+                    alert('تم مسح السجلات مؤقتاً');
+                } catch (error) {
+                    console.error('Error clearing logs:', error);
+                    alert('خطأ في مسح السجلات');
+                }
+            }
+
+            filterLogs() {
+                const filterSelect = document.getElementById('logFilter');
+                this.filter = filterSelect.value;
+                this.loadLogs();
+            }
+
+            showError(message) {
+                const terminal = document.getElementById('logsTerminal');
+                if (terminal) {
+                    terminal.innerHTML = `
+                        <div class="terminal-line" style="color: var(--danger);">
+                            <span class="terminal-prompt">[ERROR]</span> ${message}
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // إنشاء instance من مدير السجلات
+        let logsManager;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // التحقق من صلاحيات المدير
+            const token = localStorage.getItem('authToken');
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            
+            if (!token || !user || user.role !== 'admin') {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            logsManager = new LogsManager();
+        });
+    </script>
+</body>
+</html>

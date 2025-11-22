@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة الفيديو - غرفة العمليات</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="terminal-effect">
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="/" class="navbar-brand">
+                <span class="glitch-text" data-text="VIDEO_OPS">VIDEO_OPS</span>
+            </a>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div data-admin-links></div>
+                <div id="authButtons"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="container">
+        <!-- الهيدر -->
+        <div class="card">
+            <div style="text-align: center; padding: 3rem 0;">
+                <h1 style="font-size: 3rem; margin-bottom: 1rem;">
+                    <span class="glitch-text" data-text="VIDEO_OPS_CENTER">VIDEO_OPS_CENTER</span>
+                </h1>
+                <p style="color: var(--text-secondary); font-size: 1.2rem;">
+                    نظام إدارة محتوى الفيديو المتقدم - النسخة 2.0
+                </p>
+            </div>
+        </div>
+
+        <!-- محتوى للمستخدمين المسجلين فقط -->
+        <div id="authenticatedContent">
+            <!-- إحصائيات النظام -->
+            <div class="card">
+                <div class="card-header">حالة النظام</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div class="stat-box">
+                        <div style="color: var(--success); font-size: 2rem; font-weight: bold;">0</div>
+                        <div style="color: var(--text-secondary);">فيديو نشط</div>
+                    </div>
+                    <div class="stat-box">
+                        <div style="color: var(--success); font-size: 2rem; font-weight: bold;">0</div>
+                        <div style="color: var(--text-secondary);">مستخدم متصل</div>
+                    </div>
+                    <div class="stat-box">
+                        <div style="color: var(--success); font-size: 2rem; font-weight: bold;">100%</div>
+                        <div style="color: var(--text-secondary);">استقرار النظام</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ترمينال النظام -->
+            <div class="card">
+                <div class="card-header">سجل النظام المباشر</div>
+                <div class="terminal" id="systemTerminal">
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">></span> تهيئة نظام إدارة الفيديو...
+                    </div>
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">></span> تحميل وحدات النظام...
+                    </div>
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">></span> الاتصال بقاعدة البيانات...
+                    </div>
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">></span> جاهز للاستخدام.
+                    </div>
+                </div>
+            </div>
+
+            <!-- آخر الفيديوهات -->
+            <div class="card">
+                <div class="card-header">أحدث المحتويات</div>
+                <div class="video-grid" id="videosGrid">
+                    <!-- سيتم تعبئة الفيديوهات ديناميكياً -->
+                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        جاري تحميل المحتوى...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- محتوى للزوار غير المسجلين -->
+        <div id="guestContent" style="display: none;">
+            <div class="card">
+                <div class="card-header">مرحباً بك في نظام الفيديو</div>
+                <div style="text-align: center; padding: 3rem;">
+                    <div style="font-size: 4rem; color: var(--accent-color); margin-bottom: 1.5rem;">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h2 style="color: var(--text-primary); margin-bottom: 1rem;">يجب تسجيل الدخول للوصول إلى المحتوى</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6;">
+                        نظام الفيديو المتقدم يتطلب تسجيل الدخول لمشاهدة المحتوى.<br>
+                        يمكنك إنشاء حساب جديد أو تسجيل الدخول إذا كان لديك حساب بالفعل.
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="/login.html" class="btn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            تسجيل الدخول
+                        </a>
+                        <a href="/register.html" class="btn btn-outline">
+                            <i class="fas fa-user-plus"></i>
+                            إنشاء حساب جديد
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">مميزات النظام</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; padding: 1rem;">
+                    <div style="text-align: center; padding: 1.5rem;">
+                        <div style="font-size: 2.5rem; color: var(--accent-color); margin-bottom: 1rem;">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">فيديوهات عالية الجودة</h3>
+                        <p style="color: var(--text-secondary);">استمتع بمشاهدة أحدث الفيديوهات بأعلى جودة</p>
+                    </div>
+                    <div style="text-align: center; padding: 1.5rem;">
+                        <div style="font-size: 2.5rem; color: var(--accent-color); margin-bottom: 1rem;">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">بيئة آمنة</h3>
+                        <p style="color: var(--text-secondary);">نظام آدراية متكامل لحماية المحتوى والمستخدمين</p>
+                    </div>
+                    <div style="text-align: center; padding: 1.5rem;">
+                        <div style="font-size: 2.5rem; color: var(--accent-color); margin-bottom: 1rem;">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">أداء سريع</h3>
+                        <p style="color: var(--text-secondary);">تجربة مستخدم سلسة وسريعة في التصفح والمشاهدة</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- السكريبتات -->
+    <script src="js/auth.js"></script>
+    <script src="js/terminal.js"></script>
+    <script src="js/videos.js"></script>
+
+    <script>
+        // التحقق من حالة تسجيل الدخول وعرض المحتوى المناسب
+        function checkAuthStatus() {
+            const token = localStorage.getItem('authToken');
+            const user = localStorage.getItem('user');
+            const authenticatedContent = document.getElementById('authenticatedContent');
+            const guestContent = document.getElementById('guestContent');
+
+            if (token && user) {
+                // المستخدم مسجل دخول
+                authenticatedContent.style.display = 'block';
+                guestContent.style.display = 'none';
+            } else {
+                // المستخدم غير مسجل دخول
+                authenticatedContent.style.display = 'none';
+                guestContent.style.display = 'block';
+            }
+        }
+
+        // تنفيذ التحقق عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', checkAuthStatus);
+    </script>
+</body>
+</html>

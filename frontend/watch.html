@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشاهدة الفيديو - نظام الفيديو</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="terminal-effect">
+    <nav class="navbar">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="/" class="navbar-brand">
+                <span class="glitch-text" data-text="VIDEO_OPS">VIDEO_OPS</span>
+            </a>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div data-admin-links></div>
+                <div id="authButtons"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" id="mainContent">
+        <!-- سيتم تحميل المحتوى هنا بناءً على حالة المصادقة -->
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        let currentVideoId = null;
+
+        // التحقق من حالة تسجيل الدخول وعرض المحتوى المناسب
+        function checkAuthStatus() {
+            const token = localStorage.getItem('authToken');
+            const user = localStorage.getItem('user');
+            
+            if (token && user) {
+                // المستخدم مسجل دخول - تحميل محتوى الفيديو
+                loadVideoContent();
+            } else {
+                // المستخدم غير مسجل دخول - عرض رسالة
+                showGuestMessage();
+            }
+        }
+
+        function showGuestMessage() {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <div class="card">
+                    <div style="text-align: center; padding: 3rem;">
+                        <div style="font-size: 4rem; color: var(--accent-color); margin-bottom: 1.5rem;">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h2 style="color: var(--text-primary); margin-bottom: 1rem;">يجب تسجيل الدخول لمشاهدة الفيديو</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6;">
+                            لا يمكنك مشاهدة هذا الفيديو بدون تسجيل الدخول.<br>
+                            يرجى تسجيل الدخول أو إنشاء حساب جديد للوصول إلى المحتوى.
+                        </p>
+                        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                            <a href="/login.html" class="btn">
+                                <i class="fas fa-sign-in-alt"></i>
+                                تسجيل الدخول
+                            </a>
+                            <a href="/register.html" class="btn btn-outline">
+                                <i class="fas fa-user-plus"></i>
+                                إنشاء حساب جديد
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadVideoContent() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const videoId = urlParams.get('id');
+
+            if (!videoId) {
+                showError('معرف الفيديو غير صالح');
+                return;
+            }
+
+            currentVideoId = videoId;
+
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`/api/videos/${videoId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.status === 401) {
+                    showError('انتهت جلستك. يرجى تسجيل الدخول مرة أخرى.');
+                    setTimeout(() => {
+                        window.location.href = '/login.html';
+                    }, 2000);
+                    return;
+                }
+
+                if (response.status === 403) {
+                    showError('غير مسموح لك بمشاهدة هذا الفيديو.');
+                    return;
+                }
+
+                if (response.status === 404) {
+                    showError('الفيديو غير موجود أو تم حذفه.');
+                    return;
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayVideo(data.data.video);
+                } else {
+                    showError(data.message || 'خطأ في تحميل الفيديو');
+                }
+            } catch (error) {
+                console.error('Error loading video:', error);
+                showError('خطأ في الاتصال بالسيرفر');
+            }
+        }
+
+        function displayVideo(video) {
+            const container = document.getElementById('mainContent');
+            
+            container.innerHTML = `
+                <div id="videoPlayerContainer">
+                    <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                        جاري تحميل الفيديو...
+                    </div>
+                </div>
+
+                <div class="card" id="videoInfoCard" style="display: none;">
+                    <div class="card-header" id="videoTitle">عنوان الفيديو</div>
+                    <div id="videoDescription" style="color: var(--text-secondary); line-height: 1.6;">
+                        وصف الفيديو...
+                    </div>
+                    <div style="margin-top: 1rem; display: flex; gap: 2rem; color: var(--text-secondary); font-size: 0.9rem;">
+                        <span id="videoViews">0 مشاهدة</span>
+                        <span id="videoDate">غير محدد</span>
+                        <span id="videoPrivacy">عام</span>
+                    </div>
+                </div>
+
+                <!-- رسالة الخطأ -->
+                <div id="errorMessage" class="alert alert-error" style="display: none; margin-top: 2rem;">
+                    <strong>خطأ في تشغيل الفيديو:</strong>
+                    <span id="errorText"></span>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn" onclick="retryLoadVideo()">إعادة المحاولة</button>
+                        <a href="/" class="btn" style="margin-right: 1rem;">العودة للرئيسية</a>
+                    </div>
+                </div>
+
+                <!-- رابط بديل للفيديو -->
+                <div id="alternativeLink" class="card" style="display: none; margin-top: 2rem;">
+                    <div class="card-header">رابط بديل للفيديو</div>
+                    <div style="padding: 1.5rem;">
+                        <p style="margin-bottom: 1rem;">يمكنك مشاهدة الفيديو مباشرة على YouTube:</p>
+                        <a id="directYoutubeLink" href="#" target="_blank" class="btn" style="display: inline-block;">
+                            <i class="fab fa-youtube"></i> مشاهدة على YouTube
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            // إنشاء iframe لمشغل YouTube
+            const videoContainer = document.getElementById('videoPlayerContainer');
+            const iframe = document.createElement('iframe');
+            iframe.width = "100%";
+            iframe.height = "600";
+            iframe.src = `https://www.youtube.com/embed/${video.youtubeId}`;
+            iframe.title = video.title;
+            iframe.frameBorder = "0";
+            iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+            iframe.allowFullscreen = true;
+            iframe.referrerPolicy = "strict-origin-when-cross-origin";
+            
+            iframe.onload = function() {
+                console.log('✅ تم تحميل iframe بنجاح');
+            };
+            
+            iframe.onerror = function() {
+                console.error('❌ خطأ في تحميل iframe');
+                handleVideoError(video);
+            };
+
+            videoContainer.innerHTML = '';
+            videoContainer.appendChild(iframe);
+
+            // عرض معلومات الفيديو
+            document.getElementById('videoTitle').textContent = video.title;
+            document.getElementById('videoDescription').textContent = video.description || 'لا يوجد وصف';
+            document.getElementById('videoViews').textContent = `${video.views} مشاهدة`;
+            document.getElementById('videoDate').textContent = new Date(video.createdAt).toLocaleDateString('ar-EG');
+            document.getElementById('videoPrivacy').textContent = 
+                video.privacy === 'public' ? 'عام' : 
+                video.privacy === 'private' ? 'خاص' : 'غير مدرج';
+            
+            document.getElementById('videoInfoCard').style.display = 'block';
+
+            // إعداد الرابط البديل
+            document.getElementById('directYoutubeLink').href = video.url;
+            
+            // التحقق من حالة الفيديو بعد فترة
+            setTimeout(() => {
+                checkVideoStatus(iframe, video);
+            }, 3000);
+        }
+
+        function checkVideoStatus(iframe, video) {
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                const errorElements = iframeDoc.querySelectorAll('[class*="error"], [id*="error"]');
+                if (errorElements.length > 0) {
+                    handleVideoError(video);
+                }
+            } catch (error) {
+                console.log('⚠️ لا يمكن التحقق من حالة الفيديو بسبب CORS');
+                if (iframe.src && !iframe.src.includes('about:blank')) {
+                    console.log('✅ يبدو أن الفيديو محمل بنجاح');
+                } else {
+                    handleVideoError(video);
+                }
+            }
+        }
+
+        function handleVideoError(video) {
+            console.log('🎬 معالجة خطأ الفيديو:', video.youtubeId);
+            
+            const container = document.getElementById('videoPlayerContainer');
+            
+            container.innerHTML = `
+                <div style="text-align: center; padding: 3rem; background: var(--secondary-bg); border-radius: 8px;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">❌</div>
+                    <h3 style="color: var(--danger); margin-bottom: 1rem;">تعذر تحميل الفيديو</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                        قد يكون الفيديو خاصاً أو غير مدرج ولا يمكن عرضه هنا.<br>
+                        يمكنك مشاهدته مباشرة على YouTube.
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="${video.url}" target="_blank" class="btn" style="background: var(--danger);">
+                            <i class="fab fa-youtube"></i> مشاهدة على YouTube
+                        </a>
+                        <button class="btn" onclick="retryLoadVideo()">
+                            <i class="fas fa-redo"></i> إعادة المحاولة
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('alternativeLink').style.display = 'block';
+            
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (user.role === 'admin') {
+                container.innerHTML += `
+                    <div class="alert alert-warning" style="margin-top: 1rem;">
+                        <strong>معلومات للمسؤول:</strong><br>
+                        معرف اليوتيوب: <code>${video.youtubeId}</code><br>
+                        الخصوصية: ${video.privacy}<br>
+                        الحلول المقترحة:<br>
+                        1. تأكد من أن الفيديو <strong>عام (Public)</strong> على YouTube<br>
+                        2. إذا كان الفيديو <strong>غير مدرج (Unlisted)</strong>، تأكد من صحة الرابط<br>
+                        3. إذا كان الفيديو <strong>خاص (Private)</strong>، لا يمكن عرضه هنا
+                    </div>
+                `;
+            }
+        }
+
+        function showError(message) {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <div class="alert alert-error">
+                    <strong>خطأ:</strong> ${message}
+                    <div style="margin-top: 1rem;">
+                        <a href="/" class="btn">العودة للرئيسية</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function retryLoadVideo() {
+            loadVideoContent();
+        }
+
+        // التهيئة عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', checkAuthStatus);
+    </script>
+</body>
+</html>

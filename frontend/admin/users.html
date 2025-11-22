@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المستخدمين - نظام الفيديو</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="terminal-effect">
+    <div class="admin-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>
+                    <i class="fas fa-video"></i>
+                    <span>مركز التحكم</span>
+                </h2>
+                <div class="user-info" id="userInfo">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-details">
+                        <div class="user-name">جاري التحميل...</div>
+                        <div class="user-role">ADMIN</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+                    <span class="nav-text">لوحة التحكم</span>
+                </a>
+                <a href="videos.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-play-circle"></i></span>
+                    <span class="nav-text">إدارة الفيديوهات</span>
+                </a>
+                <a href="users.html" class="nav-item active">
+                    <span class="nav-icon"><i class="fas fa-users"></i></span>
+                    <span class="nav-text">إدارة المستخدمين</span>
+                </a>
+                <a href="logs.html" class="nav-item">
+                    <span class="nav-icon"><i class="fas fa-clipboard-list"></i></span>
+                    <span class="nav-text">سجلات النظام</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-danger" style="width: 100%;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="content-header">
+                <h1>إدارة المستخدمين</h1>
+            </div>
+
+            <div class="content-area">
+                <div class="card">
+                    <div class="table-header">
+                        <h3>قائمة المستخدمين</h3>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>المستخدم</th>
+                                    <th>البريد الإلكتروني</th>
+                                    <th>الدور</th>
+                                    <th>الحالة</th>
+                                    <th>تاريخ التسجيل</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                        جاري تحميل المستخدمين...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script>
+        class UsersManager {
+            constructor() {
+                this.users = [];
+                this.init();
+            }
+
+            async init() {
+                await this.loadUsers();
+            }
+
+            async loadUsers() {
+                try {
+                    const token = localStorage.getItem('authToken');
+                    const response = await fetch('/api/admin/users', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.users = data.data.users;
+                        this.renderUsersTable();
+                    } else {
+                        this.showError('فشل في تحميل المستخدمين: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error loading users:', error);
+                    this.showError('خطأ في تحميل المستخدمين');
+                }
+            }
+
+            renderUsersTable() {
+                const tbody = document.getElementById('usersTableBody');
+                if (!tbody) return;
+
+                if (this.users.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                لا توجد مستخدمين
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = this.users.map(user => `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div class="user-avatar-small">
+                                    ${user.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div style="font-weight: bold;">${user.name}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${user.email}</td>
+                        <td>
+                            <span class="badge ${user.role === 'admin' ? 'badge-success' : 'badge-warning'}">
+                                ${user.role === 'admin' ? 'مدير' : 'مستخدم'}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge ${user.active ? 'badge-success' : 'badge-danger'}">
+                                ${user.active ? 'نشط' : 'غير نشط'}
+                            </span>
+                        </td>
+                        <td>${new Date(user.createdAt).toLocaleDateString('ar-EG')}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-sm" onclick="usersManager.toggleUserStatus('${user._id}', ${!user.active})">
+                                    ${user.active ? 'تعطيل' : 'تفعيل'}
+                                </button>
+                                <button class="btn btn-sm" onclick="usersManager.changeUserRole('${user._id}', '${user.role === 'admin' ? 'user' : 'admin'}')">
+                                    ${user.role === 'admin' ? 'إزالة المدير' : 'جعل مدير'}
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            async toggleUserStatus(userId, newStatus) {
+                try {
+                    const token = localStorage.getItem('authToken');
+                    const response = await fetch(`/api/admin/users/${userId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ active: newStatus })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert(`تم ${newStatus ? 'تفعيل' : 'تعطيل'} المستخدم بنجاح`);
+                        await this.loadUsers();
+                    } else {
+                        alert('فشل في تحديث حالة المستخدم: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error updating user status:', error);
+                    alert('خطأ في تحديث حالة المستخدم');
+                }
+            }
+
+            async changeUserRole(userId, newRole) {
+                try {
+                    const token = localStorage.getItem('authToken');
+                    const response = await fetch(`/api/admin/users/${userId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ role: newRole })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert(`تم تغيير دور المستخدم إلى ${newRole === 'admin' ? 'مدير' : 'مستخدم'} بنجاح`);
+                        await this.loadUsers();
+                    } else {
+                        alert('فشل في تغيير دور المستخدم: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error changing user role:', error);
+                    alert('خطأ في تغيير دور المستخدم');
+                }
+            }
+
+            showError(message) {
+                const tbody = document.getElementById('usersTableBody');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6">
+                                <div style="background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 1rem; border-radius: 4px; text-align: center;">
+                                    ${message}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+        }
+
+        // إنشاء instance من مدير المستخدمين
+        let usersManager;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // التحقق من صلاحيات المدير
+            const token = localStorage.getItem('authToken');
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            
+            if (!token || !user || user.role !== 'admin') {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            usersManager = new UsersManager();
+        });
+    </script>
+</body>
+</html>
